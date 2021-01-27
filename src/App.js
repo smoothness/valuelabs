@@ -20,18 +20,16 @@ function App() {
     dispatch(changeRiskGraphData(rowData));
   }
 
-  const setSelectedRiskCB = React.useCallback(getSelectedRow, [setSelectedRisk]);
-
-  useEffect(() => {
-    const firstRow = document.querySelector('#riskDataGrid tbody tr:first-child');
-    setSelectedRisk(firstRow);
-  }, []);
-
   function getSelectedRow(e) {
     const row = e.target.closest('.ant-table-row');
 
     setSelectedRisk(row);
   }
+
+  useEffect(() => {
+    const firstRow = document.querySelector('#riskDataGrid tbody tr:first-child');
+    setSelectedRisk(firstRow);
+  }, []);
 
   const rawColumns = Object.keys(investmentData).map(col => {
     return {
@@ -48,7 +46,7 @@ function App() {
       key: 'action',
       render: () => (
         <Space size="middle">
-          <Button type="button" onClick={setSelectedRiskCB}>Select</Button>
+          <Button type="button" onClick={getSelectedRow}>Select</Button>
         </Space>
       )
     }
