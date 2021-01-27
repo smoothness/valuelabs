@@ -20,7 +20,7 @@ function App() {
     dispatch(changeRiskGraphData(rowData));
   }
 
-  const setSelectedRiskCB = React.useCallback(getSelectedRow, []);
+  const setSelectedRiskCB = React.useCallback(getSelectedRow, [setSelectedRisk]);
 
   useEffect(() => {
     const firstRow = document.querySelector('#riskDataGrid tbody tr:first-child');
