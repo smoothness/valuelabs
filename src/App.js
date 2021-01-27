@@ -29,6 +29,7 @@ function App() {
   useEffect(() => {
     const firstRow = document.querySelector('#riskDataGrid tbody tr:first-child');
     setSelectedRisk(firstRow);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rawColumns = Object.keys(investmentData).map(col => {
