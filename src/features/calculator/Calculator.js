@@ -29,7 +29,7 @@ function Calculator() {
           const formData = new FormData(e.target);
           const data = Object.fromEntries(formData.entries());
           const formatedData = Object.keys(data).map(i => { return {[i]: data[i]}})
-          setFormData(data);
+          setFormData(formatedData);
         }}
       >
         <div className="App-main-2-fields">
