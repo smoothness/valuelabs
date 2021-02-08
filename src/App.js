@@ -1,36 +1,33 @@
-import React, { useEffect } from 'react';
-import { Table, Space, Button } from 'antd';
+import React, { useState } from 'react';
+import { Typography, Table, Space, Button } from 'antd';
+import { CaretRightOutlined, CaretLeftOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
+import 'antd/dist/antd.css';
 
 import { changeRiskGraphData, selectRiskData } from './features/chart/chartSlice';
+import { setCalculatorAmounts } from './features/calculator/calculatorSlice';
 import { investmentData } from './libs/business-logic';
+import { formatData } from './libs/helpers';
 import Chart from './features/chart/Chart';
-import 'antd/dist/antd.css';
+import Calculator from './features/calculator/Calculator';
 import './App.css';
 
 function App() {
-  const riskData = useSelector(selectRiskData);
+  const { Title } = Typography;
   const dispatch = useDispatch();
+  const riskData = useSelector(selectRiskData);
+  const [currentStep, setCurrentStep] = useState(1);
 
   function setSelectedRisk(row) {
-    const rowCellArray = Array.from(row.querySelectorAll('td'));
-    const rawRowData = rowCellArray.map(cell => Number(cell.innerHTML));
-    const rowData = rawRowData.slice(0, -1);
-
-    dispatch(changeRiskGraphData(rowData));
+    dispatch(changeRiskGraphData(formatData(row)));
+    dispatch(setCalculatorAmounts(formatData(row)))
   }
 
-  function getSelectedRow(e) {
-    const row = e.target.closest('.ant-table-row');
-
-    setSelectedRisk(row);
+  function goToRiskAssessment() {
+    riskData.length === 0
+      ? alert('Please select a risk level')
+      : setCurrentStep(2);
   }
-
-  useEffect(() => {
-    const firstRow = document.querySelector('#riskDataGrid tbody tr:first-child');
-    setSelectedRisk(firstRow);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const rawColumns = Object.keys(investmentData).map(col => {
     return {
@@ -47,7 +44,9 @@ function App() {
       key: 'action',
       render: () => (
         <Space size="middle">
-          <Button type="button" onClick={getSelectedRow}>Select</Button>
+          <Button type="button" onClick={goToRiskAssessment}>
+            Go <CaretRightOutlined />
+          </Button>
         </Space>
       )
     }
@@ -66,12 +65,54 @@ function App() {
     }
   });
 
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRisk(selectedRows[0]);
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      name: record.name,
+    }),
+  };
+
+  const goBack = () => setCurrentStep(1);
+
   return (
     <div className="App">
       <header className="App-header">
-        <Table id="riskDataGrid" dataSource={dataSource} columns={columns} />
-        <Chart data={riskData} />
+        <Title>Value Labs Financial Advisor</Title>
       </header>
+      <main className="App-main">
+        {currentStep === 1 && (
+          <section className="App-main-1">
+            <Table
+              id="riskDataGrid"
+              dataSource={dataSource}
+              columns={columns}
+              rowSelection={{
+                type: 'radio',
+                ...rowSelection,
+              }}
+            />
+            <Chart data={riskData} />
+          </section>
+        )}
+        {currentStep === 2 && (
+          <section className="App-main-2">
+            <div>
+              <Button
+                className="goBack"
+                type="primary"
+                onClick={goBack}
+              >
+                <CaretLeftOutlined /> Go Back
+              </Button>
+              <Title level={3}>Level {riskData.risk} Risk Tolerance - Recommendation Calculator</Title>
+              <Calculator />
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }
